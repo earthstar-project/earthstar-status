@@ -14,6 +14,9 @@ import {
   useDocuments,
   AuthorLabel,
 } from "react-earthstar";
+import {
+  formatDistance
+} from 'date-fns'
 import "react-earthstar/styles/layout.css";
 
 function App() {
@@ -117,12 +120,17 @@ function WorkspaceStatuses({ address: workspaceAddress }: WorkspaceStatusesProps
   );
 
   return (
+    <>
+    <hr/>
     <div>
       <h2>
         <WorkspaceLabel address={workspaceAddress} />
       </h2>
+      <ul>
       {docs.map((doc) => <Status key={doc.path} doc={doc}/>)}
+      </ul>
     </div>
+    </>
   );
 }
 
@@ -132,9 +140,36 @@ type StatusProps = {
 
 function Status({doc}: StatusProps) {
   
-  return <div>
+  const date = new Date(doc.timestamp / 1000)
+  const agoString = formatDistance(date, new Date(), {
+    addSuffix: true
+  });
+  
+  const oldness = howOld(date);
+  
+  // TODO: Actually make different styles for the different oldnesses
+  
+  return <li className={['status', oldness].join(' ')}>
     <p><strong><AuthorLabel address={doc.author}/></strong>{" "}{doc.content}</p>
-  </div>
+    <p>{agoString}</p>
+  </li>
+}
+
+type Oldness = 'recent' | 'old' | 'ancient'
+
+function howOld(date: Date): Oldness {
+  const daysOld = (Date.now() - date.getTime()) / 1000 / 60 / 60 / 24
+  
+  if (daysOld > 365) {
+    return 'ancient'
+  }
+  
+  if (daysOld > 30) {
+    return 'old'
+  }
+  
+  
+  return 'recent'
 }
 
 export default App;
