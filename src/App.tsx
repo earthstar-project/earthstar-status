@@ -14,9 +14,7 @@ import {
   useDocuments,
   AuthorLabel,
 } from "react-earthstar";
-import {
-  formatDistance
-} from 'date-fns'
+import { formatDistance } from "date-fns";
 import "react-earthstar/styles/layout.css";
 
 function App() {
@@ -51,25 +49,29 @@ function StatusPoster() {
   const [currentAuthor] = useCurrentAuthor();
 
   const [, setStatusDoc] = useDocument(
-    `/about/~${currentAuthor?.address}/status.txt`, selectedWorkspace || 'oops'
+    `/about/~${currentAuthor?.address}/status.txt`,
+    selectedWorkspace || "oops"
   );
 
   return (
     <div>
       {currentAuthor === null ? "Sign in to post!" : null}
       {workspaces.length > 0 && currentAuthor?.address ? (
-        <form id={"message-poster"} onSubmit={(e) => {
-          e.preventDefault()
-          
-          const result = setStatusDoc(newStatus);
+        <form
+          id={"message-poster"}
+          onSubmit={(e) => {
+            e.preventDefault();
 
-          if (isErr(result)) {
-            alert("Something went wrong!");
-            return;
-          }
+            const result = setStatusDoc(newStatus);
 
-          setNewStatus("");
-        }}>
+            if (isErr(result)) {
+              alert("Something went wrong!");
+              return;
+            }
+
+            setNewStatus("");
+          }}
+        >
           <select
             value={selectedWorkspace || "NOTHING"}
             onChange={(e) => setSelectedWorkspace(e.target.value)}
@@ -85,11 +87,7 @@ function StatusPoster() {
             value={newStatus}
             onChange={(e) => setNewStatus(e.target.value)}
           />
-          <button
-            type='submit'
-          >
-            {"Update status"}
-          </button>
+          <button type="submit">{"Update status"}</button>
         </form>
       ) : (
         "Add some workspaces so that you can post!"
@@ -114,62 +112,81 @@ type WorkspaceStatusesProps = {
   address: string;
 };
 
-function WorkspaceStatuses({ address: workspaceAddress }: WorkspaceStatusesProps) {
-  const docs = useDocuments({ pathPrefix: "/about/" }, workspaceAddress).filter((doc) =>
-    doc.path.endsWith("/status.txt")
-  );
+function WorkspaceStatuses({
+  address: workspaceAddress,
+}: WorkspaceStatusesProps) {
+  const docs = useDocuments(
+    { pathPrefix: "/about/" },
+    workspaceAddress
+  ).filter((doc) => doc.path.endsWith("/status.txt"));
 
   return (
     <>
-    <hr/>
-    <div>
-      <h2>
-        <WorkspaceLabel address={workspaceAddress} />
-      </h2>
-      <ul>
-      {docs.map((doc) => <Status key={doc.path} doc={doc}/>)}
-      </ul>
-    </div>
+      <hr />
+      <div>
+        <h2>
+          <WorkspaceLabel address={workspaceAddress} />
+        </h2>
+        <ul>
+          {docs.map((doc) => (
+            <Status key={doc.path} doc={doc} />
+          ))}
+        </ul>
+      </div>
     </>
   );
 }
 
 type StatusProps = {
-  doc: Document
-}
+  doc: Document;
+};
 
-function Status({doc}: StatusProps) {
-  
-  const date = new Date(doc.timestamp / 1000)
+function Status({ doc }: StatusProps) {
+  const date = new Date(doc.timestamp / 1000);
   const agoString = formatDistance(date, new Date(), {
-    addSuffix: true
+    addSuffix: true,
   });
-  
+
   const oldness = howOld(date);
-  
+
   // TODO: Actually make different styles for the different oldnesses
-  
-  return <li className={['status', oldness].join(' ')}>
-    <p><strong><AuthorLabel address={doc.author}/></strong>{" "}{doc.content}</p>
-    <p>{agoString}</p>
-  </li>
+
+  const [displayNameDoc] = useDocument(
+    `/about/~${doc.author}/displayName.txt`,
+    doc.workspace
+  );
+
+  return (
+    <li className={["status", oldness].join(" ")}>
+      <p>
+        <strong>
+          {displayNameDoc ? (
+            displayNameDoc.content
+          ) : (
+            <AuthorLabel address={doc.author} />
+          )}
+        </strong>{" "}
+        {doc.content}
+      </p>
+      <p>{agoString}</p>
+    </li>
+  );
 }
 
-type Oldness = 'recent' | 'old' | 'ancient'
+type Oldness = "recent" | "old" | "ancient";
 
 function howOld(date: Date): Oldness {
-  const daysOld = (Date.now() - date.getTime()) / 1000 / 60 / 60 / 24
-  
+  const daysOld = (Date.now() - date.getTime()) / 1000 / 60 / 60 / 24;
+
   if (daysOld > 365) {
-    return 'ancient'
+    return "ancient";
   }
-  
+
   if (daysOld > 30) {
-    return 'old'
+    return "old";
   }
-  
-  
-  return 'recent'
+
+  return "recent";
 }
 
 export default App;
