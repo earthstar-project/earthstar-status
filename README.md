@@ -1,3 +1,15 @@
+# Earthstar Status
+
+Work in progress!
+
+A simple [Earthstar](https://github.com/earthstar-project/earthstar) app that shows the latest status of each person in a workspace.  Similar to the chat status in old chat apps like AIM.
+
+[![Netlify Status](https://api.netlify.com/api/v1/badges/4de478f2-a094-4b60-92aa-abe5727cc32c/deploy-status)](https://app.netlify.com/sites/earthstar-status/deploys)
+
+https://earthstar-status.netlify.app/
+
+---
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
