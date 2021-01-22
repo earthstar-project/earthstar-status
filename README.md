@@ -4,6 +4,8 @@ Work in progress!
 
 A simple [Earthstar](https://github.com/earthstar-project/earthstar) app that shows the latest status of each person in a workspace.  Similar to the chat status in old chat apps like AIM.
 
+The main branch is auto-deployed here:
+
 [![Netlify Status](https://api.netlify.com/api/v1/badges/4de478f2-a094-4b60-92aa-abe5727cc32c/deploy-status)](https://app.netlify.com/sites/earthstar-status/deploys)
 
 https://earthstar-status.netlify.app/
@@ -14,9 +16,17 @@ https://earthstar-status.netlify.app/
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+To develop this you will need:
+* node, probably v12+
+* [yarn](https://classic.yarnpkg.com/en/docs/install#mac-stable) instead of `npm`.
+
 ## Available Scripts
 
 In the project directory, you can run:
+
+### `yarn install`
+
+Do this first, to install dependencies.
 
 ### `yarn start`
 
