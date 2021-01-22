@@ -256,7 +256,7 @@ function OnlineIndicator({
 
   const docDate = new Date(lastOnlineDoc.timestamp / 1000);
 
-  const isOnline = Math.abs(differenceInSeconds(docDate, new Date())) <= 30;
+  const isOnline = differenceInSeconds(new Date(), docDate) <= 30;
 
   const notThere = lastOnlineDoc.content === "";
 
