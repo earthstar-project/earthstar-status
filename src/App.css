@@ -6,3 +6,7 @@
 .status {
   list-style: none
 }
+
+.status-timestamp {
+  text-align: right;
+}

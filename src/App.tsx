@@ -13,11 +13,12 @@ import {
   WorkspaceLabel,
   useDocuments,
   AuthorLabel,
+  useStorages
 } from "react-earthstar";
-import { formatDistance } from "date-fns";
+import { formatDistance, differenceInSeconds } from "date-fns";
 import "react-earthstar/styles/layout.css";
 
-function App() {
+function App() {  
   return (
     <div className="App">
       <EarthstarPeer>
@@ -26,6 +27,7 @@ function App() {
           <Spacer />
           <AuthorTab />
         </Earthbar>
+        <OnlineWriter/>
         <StatusPoster />
         <StatusesList />
       </EarthstarPeer>
@@ -38,6 +40,35 @@ function App() {
 //   - my basil is flowering!
 // - +earthstardev
 //   - I just wrote some great docs
+
+function OnlineWriter() {
+  const [storages] = useStorages();
+  const [currentAuthor] = useCurrentAuthor()
+  
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      if (!currentAuthor) {
+        return;
+      }
+      
+      Object.values(storages).forEach((storage) => {
+        storage.set(currentAuthor, {
+          content: JSON.stringify(true),
+          path: `/about/~${currentAuthor.address}/last-online.json`,
+          format: 'es.4'
+        })
+      })
+      
+      console.log('<3')
+    }, 20000);
+    
+    return (() => {
+      clearInterval(interval)
+    })
+  }, [currentAuthor, storages])
+  
+  return null;
+}
 
 function StatusPoster() {
   const workspaces = useWorkspaces();
@@ -52,7 +83,7 @@ function StatusPoster() {
     `/about/~${currentAuthor?.address}/status.txt`,
     selectedWorkspace || "oops"
   );
-
+  
   return (
     <div>
       {currentAuthor === null ? "Sign in to post!" : null}
@@ -159,16 +190,18 @@ function Status({ doc }: StatusProps) {
   return (
     <li className={["status", oldness].join(" ")}>
       <p>
+        <OnlineIndicator  authorAddress={doc.author} workspaceAddress={doc.workspace}/>
         <strong>
           {displayNameDoc ? (
             displayNameDoc.content
           ) : (
             <AuthorLabel address={doc.author} />
           )}
-        </strong>{" "}
+        </strong>
+        
         {doc.content}
       </p>
-      <p>{agoString}</p>
+      <p className={"status-timestamp"}>{agoString}</p>
     </li>
   );
 }
@@ -187,6 +220,43 @@ function howOld(date: Date): Oldness {
   }
 
   return "recent";
+}
+
+type OnlineIndicatorProps = {
+  authorAddress: string;
+  workspaceAddress: string;
+}
+
+function OnlineIndicator({ authorAddress, workspaceAddress }: OnlineIndicatorProps) {
+  const [, setTickTock] = React.useState(false)
+  const [lastOnlineDoc] = useDocument(
+    `/about/~${authorAddress}/last-online.json`,
+    workspaceAddress
+  );
+  
+  React.useEffect(() => {
+     const interval = setInterval(() => {
+       setTickTock(prev => !prev)
+     }, 5000) 
+     
+     return (() => {
+       clearInterval(interval)
+     })
+  }, [])
+  
+  if (!lastOnlineDoc) {
+    return null;
+  }
+  
+
+  
+  const docDate = new Date(lastOnlineDoc.timestamp / 1000);
+  
+  const isOnline = differenceInSeconds(docDate, new Date()) <= 30;
+  
+  const notThere = lastOnlineDoc.content === ''
+  
+  return notThere ? null : isOnline ? <span>{'⚡️'}</span> : <span>{'💤'}</span>
 }
 
 export default App;
