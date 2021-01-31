@@ -1,6 +1,12 @@
 import React from "react";
 import "./App.css";
-import { isErr, Document, AuthorKeypair, StorageMemory, ValidatorEs4 } from "earthstar";
+import {
+  isErr,
+  Document,
+  AuthorKeypair,
+  StorageMemory,
+  ValidatorEs4,
+} from "earthstar";
 import {
   AuthorLabel,
   AuthorTab,
@@ -20,6 +26,7 @@ import {
 } from "react-earthstar";
 import { formatDistance, differenceInSeconds } from "date-fns";
 import "react-earthstar/styles/layout.css";
+import "react-earthstar/styles/junior.css";
 
 import { useLocalStorage, writeStorage } from "@rehooks/local-storage";
 
@@ -36,7 +43,10 @@ const LS_CURRENT_WORKSPACE_KEY = "earthstar-status-current-workspace";
 //      path:
 //        author:
 //            Document
-type WorkspaceRecords = Record<string, Record<string, Record<string, Document>>>;
+type WorkspaceRecords = Record<
+  string,
+  Record<string, Record<string, Document>>
+>;
 // workspaceAddress -> list of pub URLs
 type PubRecords = Record<string, string[]>;
 
@@ -86,10 +96,14 @@ function Persistor() {
 
 function App() {
   // load the initial state from localStorage
-  const [workspacesDocsInStorage] = useLocalStorage<WorkspaceRecords>(LS_STORAGES_DOCS_KEY, {});
+  const [workspacesDocsInStorage] = useLocalStorage<WorkspaceRecords>(
+    LS_STORAGES_DOCS_KEY,
+    {}
+  );
   const [pubsInStorage] = useLocalStorage<PubRecords>(LS_PUBS_KEY, {});
-  const [currentAuthorInStorage] = useLocalStorage<AuthorKeypair>(LS_AUTHOR_KEY);
-  const [currentWorkspaceInStorage] = useLocalStorage(LS_CURRENT_WORKSPACE_KEY);
+  const [currentAuthorInStorage] = useLocalStorage<AuthorKeypair>(
+    LS_AUTHOR_KEY
+  );
 
   const initWorkspaces = Object.entries(workspacesDocsInStorage).map(
     ([workspaceAddress, docs]) => {
@@ -107,17 +121,21 @@ function App() {
         initPubs={pubsInStorage}
         initWorkspaces={initWorkspaces}
         initCurrentAuthor={currentAuthorInStorage}
-        initCurrentWorkspace={currentWorkspaceInStorage}
       >
-        <Earthbar>
-          <MultiWorkspaceTab />
-          <Spacer />
-          <AuthorTab />
-        </Earthbar>
+        <div id={"earthbar-root"}>
+          <Earthbar>
+            <MultiWorkspaceTab />
+            <Spacer />
+            <AuthorTab />
+          </Earthbar>
+        </div>
         <Persistor />
+
         <OnlineHeartbeatWriter />
-        <StatusPoster />
-        <StatusesList />
+        <div id={"app-root"}>
+          <StatusPoster />
+          <StatusesList />
+        </div>
       </EarthstarPeer>
     </div>
   );
@@ -225,7 +243,6 @@ function StatusesList() {
   );
 }
 
-
 // show all the statuses in one workspace
 type WorkspaceStatusesProps = {
   address: string;
@@ -255,7 +272,6 @@ function WorkspaceStatuses({
     </>
   );
 }
-
 
 // compute an "oldness" css class for a date
 type Oldness = "recent" | "old" | "ancient";

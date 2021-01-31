@@ -4,10 +4,21 @@
 }
 
 .status {
-  list-style: none
+  list-style: none;
 }
 
 .status-timestamp {
   text-align: right;
   color: #888;
+}
+
+#earthbar-root {
+  margin: 1em auto;
+  max-width: 30em;
+  padding: 0 0.5em;
+}
+
+#app-root {
+  margin: auto;
+  max-width: 30em;
 }
