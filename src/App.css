@@ -1,15 +1,85 @@
+body {
+  background: #ebe8f6;
+  font-family: "Gill Sans";
+}
+
 #message-poster {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 5fr 1fr;
+  grid-template-rows: 4fr 1fr;
+  grid-template-areas: "input button" "input button";
+  grid-gap: 6px;
+}
+
+#status-workspace-select {
+  grid-area: workspace;
+}
+
+#status-input {
+  font-size: 1.2em;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid gray;
+  appearance: none;
+  grid-area: input;
+  margin: 0;
+}
+
+#status-submit {
+  font-size: 2.5em;
+  background: rebeccapurple;
+  border-radius: 6px;
+  border: none;
+  appearance: none;
+  box-shadow: 2px 2px 0 0 rgba(0, 0, 0, 0.1);
+  grid-area: button;
+  margin: 0;
+}
+
+.workspace h2 {
+  margin: 0.5em 0;
+  border-bottom: 2px solid cornflowerblue;
+}
+
+.status-list {
+  padding: 0;
 }
 
 .status {
   list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas: "text text" "author author";
+  margin: 0 0 1em 0;
+  border-radius: 8px;
+  padding: 10px;
+  background: #e0e2f6;
+  box-shadow: 2px 2px 5px 0 rgba(0, 0, 0, 0.05);
+}
+
+.status:last-child {
+  margin: 0;
+}
+
+.status-text {
+  font-size: 1.2em;
+  grid-area: text;
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+  margin: 0 0 0.4em 0;
+}
+
+.status-author {
+  grid-area: author;
+  margin: 0;
 }
 
 .status-timestamp {
   text-align: right;
   color: #888;
+  grid-area: time;
+  margin: 0;
 }
 
 #earthbar-root {
@@ -21,4 +91,20 @@
 #app-root {
   margin: auto;
   max-width: 30em;
+}
+
+.status-dot {
+  width: 0.6em;
+  height: 0.6em;
+  display: inline-block;
+  border-radius: 50%;
+  margin: 0 0.3em 0 0;
+}
+
+.online {
+  background-color: #79e740;
+}
+
+.offline {
+  background-color: rgba(200, 200, 200);
 }

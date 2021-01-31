@@ -104,6 +104,7 @@ function App() {
   const [currentAuthorInStorage] = useLocalStorage<AuthorKeypair>(
     LS_AUTHOR_KEY
   );
+  const [currentWorkspaceInStorage] = useLocalStorage(LS_CURRENT_WORKSPACE_KEY);
 
   const initWorkspaces = Object.entries(workspacesDocsInStorage).map(
     ([workspaceAddress, docs]) => {
@@ -121,13 +122,10 @@ function App() {
         initPubs={pubsInStorage}
         initWorkspaces={initWorkspaces}
         initCurrentAuthor={currentAuthorInStorage}
+        initCurrentWorkspace={currentWorkspaceInStorage}
       >
         <div id={"earthbar-root"}>
-          <Earthbar>
-            <MultiWorkspaceTab />
-            <Spacer />
-            <AuthorTab />
-          </Earthbar>
+          <Earthbar />
         </div>
         <Persistor />
 
@@ -177,14 +175,12 @@ function StatusPoster() {
   const workspaces = useWorkspaces();
 
   const [newStatus, setNewStatus] = React.useState("");
-  const [selectedWorkspace, setSelectedWorkspace] = React.useState(
-    workspaces.length > 0 ? workspaces[0] : null
-  );
+  const [currentWorkspace] = useCurrentWorkspace();
   const [currentAuthor] = useCurrentAuthor();
 
-  const [, setStatusDoc] = useDocument(
+  const [currentStatusDoc, setStatusDoc] = useDocument(
     `/about/~${currentAuthor?.address}/status.txt`,
-    selectedWorkspace || "oops"
+    currentWorkspace || "oops"
   );
 
   return (
@@ -206,22 +202,19 @@ function StatusPoster() {
             setNewStatus("");
           }}
         >
-          <select
-            value={selectedWorkspace || "NOTHING"}
-            onChange={(e) => setSelectedWorkspace(e.target.value)}
-          >
-            <option disabled value={"NOTHING"}>
-              {"Pick a workspace"}
-            </option>
-            {workspaces.map((address) => (
-              <option value={address}>{address}</option>
-            ))}
-          </select>
           <textarea
+            id={"status-input"}
             value={newStatus}
             onChange={(e) => setNewStatus(e.target.value)}
+            placeholder={currentStatusDoc?.content || "Enter a new status here"}
           />
-          <button type="submit">{"Update status"}</button>
+          <button
+            id={"status-submit"}
+            type="submit"
+            disabled={newStatus.length === 0}
+          >
+            {"💬"}
+          </button>
         </form>
       ) : (
         "Add some workspaces so that you can post!"
@@ -232,15 +225,11 @@ function StatusPoster() {
 
 // show all the statuses for all the workspaces
 function StatusesList() {
-  const workspaces = useWorkspaces();
+  const [currentWorkspace] = useCurrentWorkspace();
 
-  return (
-    <>
-      {workspaces.map((address) => (
-        <WorkspaceStatuses key={address} address={address} />
-      ))}
-    </>
-  );
+  return currentWorkspace ? (
+    <WorkspaceStatuses key={currentWorkspace} address={currentWorkspace} />
+  ) : null;
 }
 
 // show all the statuses in one workspace
@@ -251,25 +240,16 @@ type WorkspaceStatusesProps = {
 function WorkspaceStatuses({
   address: workspaceAddress,
 }: WorkspaceStatusesProps) {
-  const docs = useDocuments(
-    { pathPrefix: "/about/" },
-    workspaceAddress
-  ).filter((doc) => doc.path.endsWith("/status.txt"));
+  const docs = useDocuments({ pathPrefix: "/about/" }, workspaceAddress)
+    .filter((doc) => doc.path.endsWith("/status.txt"))
+    .sort((aDoc, bDoc) => (aDoc.timestamp > bDoc.timestamp ? -1 : 1));
 
   return (
-    <>
-      <hr />
-      <div>
-        <h2>
-          <WorkspaceLabel address={workspaceAddress} />
-        </h2>
-        <ul>
-          {docs.map((doc) => (
-            <Status key={doc.path} doc={doc} />
-          ))}
-        </ul>
-      </div>
-    </>
+    <ul className={"status-list"}>
+      {docs.map((doc) => (
+        <Status key={doc.path} doc={doc} />
+      ))}
+    </ul>
   );
 }
 
@@ -311,7 +291,8 @@ function Status({ doc }: StatusProps) {
 
   return (
     <li className={["status", oldness].join(" ")}>
-      <p>
+      <p className={"status-text"}>{doc.content}</p>
+      <p className={"status-author"}>
         <OnlineIndicator
           authorAddress={doc.author}
           workspaceAddress={doc.workspace}
@@ -323,10 +304,8 @@ function Status({ doc }: StatusProps) {
             <AuthorLabel address={doc.author} />
           )}
         </strong>
-
-        {doc.content}
+        <span className={"status-timestamp"}> {agoString}</span>
       </p>
-      <p className={"status-timestamp"}>{agoString}</p>
     </li>
   );
 }
@@ -368,9 +347,9 @@ function OnlineIndicator({
   const notThere = lastOnlineDoc.content === "";
 
   return notThere ? null : isOnline ? (
-    <span>{"⚡️"}</span>
+    <span className={"status-dot online"}></span>
   ) : (
-    <span>{"💤"}</span>
+    <span className={"status-dot offline"}></span>
   );
 }
 
