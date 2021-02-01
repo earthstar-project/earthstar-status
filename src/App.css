@@ -6,9 +6,10 @@ body {
 #message-poster {
   display: grid;
   grid-template-columns: 5fr 1fr;
-  grid-template-rows: 4fr 1fr;
+  grid-template-rows: 5ch 5ch;
   grid-template-areas: "input button" "input button";
   grid-gap: 6px;
+  margin: 0 8px;
 }
 
 #status-workspace-select {
@@ -50,7 +51,7 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-areas: "text text" "author author";
-  margin: 0 0 1em 0;
+  margin: 0 8px 1em 8px;
   border-radius: 8px;
   padding: 10px;
   background: #e0e2f6;
