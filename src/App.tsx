@@ -258,11 +258,11 @@ type Oldness = "recent" | "old" | "ancient";
 function howOld(date: Date): Oldness {
   const daysOld = (Date.now() - date.getTime()) / 1000 / 60 / 60 / 24;
 
-  if (daysOld > 365) {
+  if (daysOld > 30) {
     return "ancient";
   }
 
-  if (daysOld > 30) {
+  if (daysOld > 2) {
     return "old";
   }
 
