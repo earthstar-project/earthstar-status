@@ -297,7 +297,7 @@ function Status({ doc }: StatusProps) {
           authorAddress={doc.author}
           workspaceAddress={doc.workspace}
         />
-        <strong>
+        <strong title={doc.author}>
           {displayNameDoc ? (
             displayNameDoc.content
           ) : (
