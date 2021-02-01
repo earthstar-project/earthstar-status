@@ -117,11 +117,15 @@ body {
   margin: 0 0.3em 0 0;
 }
 
-.online {
+.status-online {
   background-color: #79e740;
 }
 
-.offline {
+.status-offline {
   background-color: #999;
   border-radius: 0px;
+}
+
+.status-unknown {
+  border-radius: 33%;
 }

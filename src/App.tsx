@@ -339,7 +339,7 @@ function OnlineIndicator({
   }, []);
 
   if (!lastOnlineDoc) {
-    return null;
+    return <span title="unknown status" className={"status-dot status-unknown"}></span>;
   }
 
   const docDate = new Date(lastOnlineDoc.timestamp / 1000);
@@ -349,9 +349,9 @@ function OnlineIndicator({
   const notThere = lastOnlineDoc.content === "";
 
   return notThere ? null : isOnline ? (
-    <span className={"status-dot online"}></span>
+    <span title="online" className={"status-dot status-online"}></span>
   ) : (
-    <span className={"status-dot offline"}></span>
+    <span title="offline" className={"status-dot status-offline"}></span>
   );
 }
 
