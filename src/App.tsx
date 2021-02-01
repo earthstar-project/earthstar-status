@@ -304,7 +304,9 @@ function Status({ doc }: StatusProps) {
             <AuthorLabel address={doc.author} />
           )}
         </strong>
-        <span className={"status-timestamp"}> {agoString}</span>
+      </p>
+      <p className={"status-timestamp"}>
+        {agoString}
       </p>
     </li>
   );

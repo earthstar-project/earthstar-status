@@ -49,8 +49,8 @@ body {
 .status {
   list-style: none;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-areas: "text text" "author author";
+  grid-template-columns: 2fr 1fr;
+  grid-template-areas: "text text" "author timestamp";
   margin: 0 8px 1em 8px;
   border-radius: 8px;
   padding: 10px;
@@ -77,17 +77,23 @@ body {
   padding: 12px;
   border-radius: 8px;
   margin: 0 0 0.4em 0;
+
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .status-author {
   grid-area: author;
   margin: 0;
+
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .status-timestamp {
+  grid-area: timestamp;
   text-align: right;
   color: #888;
-  grid-area: time;
   margin: 0;
 }
 
