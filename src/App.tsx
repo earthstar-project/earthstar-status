@@ -258,11 +258,11 @@ type Oldness = "recent" | "old" | "ancient";
 function howOld(date: Date): Oldness {
   const daysOld = (Date.now() - date.getTime()) / 1000 / 60 / 60 / 24;
 
-  if (daysOld > 365) {
+  if (daysOld > 30) {
     return "ancient";
   }
 
-  if (daysOld > 30) {
+  if (daysOld > 2) {
     return "old";
   }
 
@@ -297,14 +297,16 @@ function Status({ doc }: StatusProps) {
           authorAddress={doc.author}
           workspaceAddress={doc.workspace}
         />
-        <strong>
+        <strong title={doc.author}>
           {displayNameDoc ? (
             displayNameDoc.content
           ) : (
             <AuthorLabel address={doc.author} />
           )}
         </strong>
-        <span className={"status-timestamp"}> {agoString}</span>
+      </p>
+      <p className={"status-timestamp"}>
+        {agoString}
       </p>
     </li>
   );
@@ -337,7 +339,7 @@ function OnlineIndicator({
   }, []);
 
   if (!lastOnlineDoc) {
-    return null;
+    return <span title="unknown status" className={"status-dot status-unknown"}></span>;
   }
 
   const docDate = new Date(lastOnlineDoc.timestamp / 1000);
@@ -347,9 +349,9 @@ function OnlineIndicator({
   const notThere = lastOnlineDoc.content === "";
 
   return notThere ? null : isOnline ? (
-    <span className={"status-dot online"}></span>
+    <span title="online" className={"status-dot status-online"}></span>
   ) : (
-    <span className={"status-dot offline"}></span>
+    <span title="offline" className={"status-dot status-offline"}></span>
   );
 }
 
