@@ -3,132 +3,36 @@ import "./App.css";
 import {
   isErr,
   Document,
-  AuthorKeypair,
-  StorageMemory,
-  ValidatorEs4,
 } from "earthstar";
 import {
   AuthorLabel,
-  AuthorTab,
   Earthbar,
   EarthstarPeer,
-  MultiWorkspaceTab,
-  Spacer,
-  WorkspaceLabel,
   useCurrentAuthor,
   useCurrentWorkspace,
   useDocument,
   useDocuments,
-  usePubs,
   useStorages,
-  useSubscribeToStorages,
   useWorkspaces,
+  useLocalStorageEarthstarSettings,
+  LocalStorageSettingsWriter
 } from "react-earthstar";
 import { formatDistance, differenceInSeconds } from "date-fns";
 import "react-earthstar/styles/layout.css";
 import "react-earthstar/styles/junior.css";
 
-import { useLocalStorage, writeStorage } from "@rehooks/local-storage";
-
-//================================================================================
-// LOCALSTORAGE PERSISTENCE FOR REACT-EARTHSTAR
-
-const LS_AUTHOR_KEY = "earthstar-status-currentAuthor";
-const LS_PUBS_KEY = "earthstar-status-pubs";
-const LS_STORAGES_DOCS_KEY = "earthstar-status-storages-docs";
-const LS_CURRENT_WORKSPACE_KEY = "earthstar-status-current-workspace";
-
-// This is a deeply nested object with keys like:
-//   workspaceAddress:
-//      path:
-//        author:
-//            Document
-type WorkspaceRecords = Record<
-  string,
-  Record<string, Record<string, Document>>
->;
-// workspaceAddress -> list of pub URLs
-type PubRecords = Record<string, string[]>;
-
-// this saves the state of react-earthstar to localStorage
-function Persistor() {
-  const [storages] = useStorages();
-  const [pubs] = usePubs();
-  const [currentAuthor] = useCurrentAuthor();
-  const [currentWorkspace] = useCurrentWorkspace();
-
-  useSubscribeToStorages({
-    onWrite: (event) => {
-      const storage = storages[event.document.workspace];
-      writeStorage(LS_STORAGES_DOCS_KEY, {
-        ...storages,
-        [event.document.workspace]: (storage as StorageMemory)._docs,
-      });
-    },
-  });
-
-  React.useEffect(() => {
-    Object.values(storages).forEach((storage) => {
-      writeStorage(LS_STORAGES_DOCS_KEY, {
-        ...storages,
-        [storage.workspace]: (storage as StorageMemory)._docs,
-      });
-    });
-  }, [storages]);
-
-  React.useEffect(() => {
-    writeStorage(LS_PUBS_KEY, pubs);
-  }, [pubs]);
-
-  React.useEffect(() => {
-    writeStorage(LS_AUTHOR_KEY, currentAuthor);
-  }, [currentAuthor]);
-
-  React.useEffect(() => {
-    writeStorage(LS_CURRENT_WORKSPACE_KEY, currentWorkspace);
-  }, [currentWorkspace]);
-
-  return null;
-}
-
-//================================================================================
-// MAIN APP COMPONENT
-
 function App() {
-  // load the initial state from localStorage
-  const [workspacesDocsInStorage] = useLocalStorage<WorkspaceRecords>(
-    LS_STORAGES_DOCS_KEY,
-    {}
-  );
-  const [pubsInStorage] = useLocalStorage<PubRecords>(LS_PUBS_KEY, {});
-  const [currentAuthorInStorage] = useLocalStorage<AuthorKeypair>(
-    LS_AUTHOR_KEY
-  );
-  const [currentWorkspaceInStorage] = useLocalStorage(LS_CURRENT_WORKSPACE_KEY);
-
-  const initWorkspaces = Object.entries(workspacesDocsInStorage).map(
-    ([workspaceAddress, docs]) => {
-      const storage = new StorageMemory([ValidatorEs4], workspaceAddress);
-      // (this is a hack that knows too much about the internal structure of StorageMemory)
-      // (it would be better to ingest each document one by one, but also a lot slower)
-      storage._docs = docs;
-      return storage;
-    }
-  );
+  const initValues = useLocalStorageEarthstarSettings('status')
 
   return (
     <div className="App">
       <EarthstarPeer
-        initPubs={pubsInStorage}
-        initWorkspaces={initWorkspaces}
-        initCurrentAuthor={currentAuthorInStorage}
-        initCurrentWorkspace={currentWorkspaceInStorage}
+        {...initValues}
       >
         <div id={"earthbar-root"}>
           <Earthbar />
         </div>
-        <Persistor />
-
+        <LocalStorageSettingsWriter storageKey={'status'}/>
         <OnlineHeartbeatWriter />
         <div id={"app-root"}>
           <StatusPoster />
@@ -182,10 +86,14 @@ function StatusPoster() {
     `/about/~${currentAuthor?.address}/status.txt`,
     currentWorkspace || "oops"
   );
+  
+  const isNotSignedIn = currentAuthor === null;
+  const hasNoWorkspaces = workspaces.length === 0;
+  const isStartingFromZero = isNotSignedIn && hasNoWorkspaces;
+  const needsHelp = isNotSignedIn || hasNoWorkspaces;
 
   return (
     <div>
-      {currentAuthor === null ? "Sign in to post!" : null}
       {workspaces.length > 0 && currentAuthor?.address ? (
         <form
           id={"message-poster"}
@@ -217,8 +125,10 @@ function StatusPoster() {
           </button>
         </form>
       ) : (
-        "Add some workspaces so that you can post!"
+        null
       )}
+      { needsHelp ? <div className={"helper"}>{isStartingFromZero ? "To get started, sign in and join or create a workspace." : isNotSignedIn ? "You need to be signed in to post!" : "Join or create a workspace to get started."}
+      </div>: null}
     </div>
   );
 }

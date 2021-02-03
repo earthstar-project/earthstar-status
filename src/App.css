@@ -129,3 +129,13 @@ body {
 .status-unknown {
   border-radius: 33%;
 }
+
+.helper {
+  font-size: 1.2em;
+  color: white;
+  background: rebeccapurple;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 1em 8px;
+  text-align: center;
+}
