@@ -1,5 +1,7 @@
 import React from "react";
-import "./App.css";
+import Linkify from 'react-linkify';
+import { formatDistance, differenceInSeconds } from "date-fns";
+
 import {
   isErr,
   Document,
@@ -17,9 +19,10 @@ import {
   useLocalStorageEarthstarSettings,
   LocalStorageSettingsWriter
 } from "react-earthstar";
-import { formatDistance, differenceInSeconds } from "date-fns";
 import "react-earthstar/styles/layout.css";
 import "react-earthstar/styles/junior.css";
+
+import "./App.css";
 
 function App() {
   const initValues = useLocalStorageEarthstarSettings('status')
@@ -201,7 +204,11 @@ function Status({ doc }: StatusProps) {
 
   return (
     <li className={["status", oldness].join(" ")}>
-      <p className={"status-text"}>{doc.content}</p>
+      <p className={"status-text"}>
+        <Linkify>
+          {doc.content}
+        </Linkify>
+      </p>
       <p className={"status-author"}>
         <OnlineIndicator
           authorAddress={doc.author}
